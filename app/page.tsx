@@ -95,26 +95,6 @@ export default function DashboardPage() {
             </p>
           </CardContent>
         </Card>
-        {/* <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Connected Sheets</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{isLoading ? "..." : tables.filter((t) => t.sheetId).length}</div>
-            <p className="text-xs text-muted-foreground">Google Sheets connected to your tables</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Custom Columns</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? "..." : tables.reduce((acc, table) => acc + (table.customColumns?.length || 0), 0)}
-            </div>
-            <p className="text-xs text-muted-foreground">Additional columns added to your tables</p>
-          </CardContent>
-        </Card> */}
       </div>
       <TableList tables={tables} isLoading={isLoading} />
       <CreateTableDialog open={isCreateTableOpen} onOpenChange={setIsCreateTableOpen} onSubmit={handleCreateTable} />

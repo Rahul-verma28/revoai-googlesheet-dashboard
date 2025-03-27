@@ -88,17 +88,9 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 type="password"
-                placeholder="••••••••"
+                placeholder="******"
               />
             </div>
-            {/* <div className="flex justify-between w-full text-sm">
-              <Link
-                href="/forgot-password"
-                className="text-blue-600 hover:underline"
-              >
-                Forgot password?
-              </Link>
-            </div> */}
             {error && (
               <div className="flex items-center space-x-2 text-red-500 bg-red-100 p-2 rounded-md">
                 <AlertCircle className="h-4 w-4" />

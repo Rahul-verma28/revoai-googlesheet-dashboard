@@ -1,6 +1,6 @@
 import { google } from "googleapis";
 
-export async function fetchGoogleSheetData(sheetId, range = "Sheet1!A1:Z50") {
+export async function fetchGoogleSheetData(sheetId: string, range = "Sheet1!A1:Z50") {
   try {
 
     const client = new google.auth.JWT(
@@ -29,6 +29,6 @@ export async function fetchGoogleSheetData(sheetId, range = "Sheet1!A1:Z50") {
 
     return data.data.values || [];
   } catch (error) {
-    throw new Error("Error fetching Google Sheet data: " + error.message);
+    throw new Error("Error fetching Google Sheet data: " + (error as Error).message);
   }
 }

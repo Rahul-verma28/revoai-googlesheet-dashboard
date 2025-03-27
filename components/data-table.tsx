@@ -71,20 +71,14 @@ export function DataTable({ tableInfo, tableData }: DataTableProps) {
     return <TableCaption>No data available.</TableCaption>;
   }
 
-  // Extract headers from tableInfo
   const originalHeaders = tableInfo[0];
-
-  // Extract new column names from tableData
-  const newHeaders = tableData.map((col) => col.name);
-
-  // Final headers (merge both)
+  const newHeaders = tableData.map((col) => col.name)
   const headers = [...originalHeaders, ...newHeaders];
-
-  // Extract row data (excluding headers)
   const rows = tableInfo.slice(1);
 
   return (
-    <Table>
+    
+    <Table >
       <TableCaption>Spreadsheet Data</TableCaption>
       <TableHeader>
         <TableRow>
@@ -107,13 +101,12 @@ export function DataTable({ tableInfo, tableData }: DataTableProps) {
           </TableRow>
         ))}
 
-        {/* Example: Add a row with new data for demo purposes */}
         <TableRow>
           {originalHeaders.map((_, colIndex) => (
             <TableCell key={colIndex}>-</TableCell>
           ))}
           {tableData.map((col, newColIndex) => (
-            <TableCell key={newColIndex}>{col.type}</TableCell>
+            <TableCell className="font-bold" key={newColIndex}>{col.type}</TableCell>
           ))}
         </TableRow>
       </TableBody>

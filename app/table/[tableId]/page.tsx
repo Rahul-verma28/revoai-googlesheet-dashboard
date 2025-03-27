@@ -11,7 +11,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 // Define types for table data structure
 interface Column {
@@ -49,12 +55,17 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/tables/${tableId}`);
-      if (!response.ok) throw new Error("Failed to fetch table data");
+      console.log("Response:", response);
 
       const data = await response.json();
-      console.log("Fetched Table Data:", data);
-      setTableInfo(data.sheetData);
-      setTableData(data.table);
+      if (data.error) {
+        toast.error(data.message || "Failed to fetch table data");
+        console.error("Failed to fetch table data:", data.message);
+      } else {
+        console.log("Fetched Table Data:", data);
+        setTableInfo(data.sheetData);
+        setTableData(data.table);
+      }
     } catch (error) {
       console.error("Failed to fetch table data:", error);
       toast.error("Failed to fetch table data");
@@ -161,18 +172,16 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
           </Button>
         </div>
       </DashboardHeader>
-      <div className="grid gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Table Data</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {tableInfo && (
-              <DataTable tableInfo={tableInfo} tableData={tableData?.columns} />
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <Card className="overflow-x-auto">
+        <CardHeader>
+          <CardTitle>Table Data</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {tableInfo && (
+            <DataTable tableInfo={tableInfo} tableData={tableData?.columns} />
+          )}
+        </CardContent>
+      </Card>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
@@ -180,9 +189,15 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
           </DialogHeader>
-          <p>Are you sure you want to delete this table? This action cannot be undone.</p>
+          <p>
+            Are you sure you want to delete this table? This action cannot be
+            undone.
+          </p>
           <DialogFooter className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleDeleteTable}>

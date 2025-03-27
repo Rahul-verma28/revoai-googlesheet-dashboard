@@ -51,7 +51,7 @@ export function TableList({ tables, isLoading }: TableListProps) {
 
   if (tables.length === 0) {
     return (
-      <Card>
+      <Card className="my-10">
         <CardHeader>
           <CardTitle>No tables found</CardTitle>
           <CardDescription>Create your first table to get started</CardDescription>

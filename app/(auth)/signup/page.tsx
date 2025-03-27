@@ -104,7 +104,7 @@ export default function SignupPage() {
                 id="password"
                 name="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="********"
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
@@ -114,7 +114,7 @@ export default function SignupPage() {
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
-                placeholder="••••••••"
+                placeholder="********"
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
             </div>
