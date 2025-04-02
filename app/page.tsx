@@ -22,8 +22,12 @@ interface TableData {
   sheetId?: string;
   columns: Column[];
   customColumns?: Column[];
-  data: Record<string, string | number | boolean>[];
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  data?: Record<string, string | number | boolean>[];
 }
+
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -52,15 +56,23 @@ export default function DashboardPage() {
     verifyAuth();
   }, [router]);
 
-  const handleCreateTable = async (tableData: Partial<TableData>) => {
-    try {
-      const response = await fetch("/api/tables", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(tableData),
-      });
+  const handleCreateTable = async (tableData: { name: string; sheetId: string; columns: { name: string; type: string }[] }) => {
+      try {
+        const formattedTableData = {
+          ...tableData,
+          columns: tableData.columns.map((column) => ({
+            ...column,
+            id: crypto.randomUUID(), // Generate a unique ID for each column
+          })),
+        };
+  
+        const response = await fetch("/api/tables", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formattedTableData),
+        });
 
       const data = await response.json();
 

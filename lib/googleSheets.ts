@@ -5,7 +5,7 @@ export async function fetchGoogleSheetData(sheetId: string, range = "Sheet1!A1:Z
 
     const client = new google.auth.JWT(
       process.env.GOOGLE_CLIENT_EMAIL,
-      null,
+      undefined,
       process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
       ["https://www.googleapis.com/auth/spreadsheets"]
     );

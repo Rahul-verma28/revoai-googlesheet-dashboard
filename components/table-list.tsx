@@ -18,8 +18,9 @@ interface TableData {
   columns: Column[];
   customColumns?: Column[];
   description?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  data?: Record<string, string | number | boolean>[];
 }
 
 interface TableListProps {
@@ -89,7 +90,7 @@ export function TableList({ tables, isLoading }: TableListProps) {
               )}
             </CardTitle>
             <CardDescription>
-              {table.description || `Created on ${new Date(table.createdAt).toLocaleDateString()}`}
+              {table.description || `Created on ${table.createdAt ? new Date(table.createdAt).toLocaleDateString() : "Unknown date"}`}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -102,7 +103,7 @@ export function TableList({ tables, isLoading }: TableListProps) {
               </div>
               <div className="flex items-center text-sm">
                 <span className="text-muted-foreground">Last updated:</span>
-                <span className="ml-auto font-medium">{new Date(table.updatedAt).toLocaleDateString()}</span>
+                <span className="ml-auto font-medium">{table.updatedAt ? new Date(table.updatedAt).toLocaleDateString() : "Unknown date"}</span>
               </div>
             </div>
           </CardContent>

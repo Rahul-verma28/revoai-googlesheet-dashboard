@@ -5,18 +5,19 @@ import { fetchGoogleSheetData } from "@/lib/googleSheets";
 import { getDataFromToken } from "@/lib/getDataFormToken";
 import User from "@/lib/models/User";
 
-// Define the expected type for the context parameter
+// Define the expected type for the context parameter with async params
 interface RouteContext {
-  params: {
+  params: Promise<{
     tableId: string;
-  };
+  }>;
 }
 
 // GET table data
 export async function GET(req: NextRequest, context: RouteContext) {
   try {
     await connectToDB();
-    const { tableId } = context.params;
+    // Await the params to get the tableId
+    const { tableId } = await context.params;
 
     const table = await Table.findById(tableId);
     if (!table) {
@@ -29,7 +30,10 @@ export async function GET(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ error: false, table, sheetData }, { status: 200 });
   } catch (error) {
     console.error("[GET_TABLE]", error);
-    return NextResponse.json({ error: true, message: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { error: true, message: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }
 
@@ -43,7 +47,8 @@ export async function DELETE(req: NextRequest, context: RouteContext) {
       return userId; // If it's an error response, return it.
     }
 
-    const { tableId } = context.params;
+    // Await the params to get the tableId
+    const { tableId } = await context.params;
 
     if (!tableId) {
       return NextResponse.json({ error: "Table ID is required" }, { status: 400 });
@@ -65,6 +70,9 @@ export async function DELETE(req: NextRequest, context: RouteContext) {
     return NextResponse.json({ success: true, message: "Table deleted successfully" }, { status: 200 });
   } catch (error) {
     console.error("[DELETE_TABLE]", error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      { status: 500 }
+    );
   }
 }

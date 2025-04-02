@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardHeader } from "@/components/dashboard-header";
@@ -19,7 +19,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 
-// Define types for table data structure
 interface Column {
   id: string;
   name: string;
@@ -32,18 +31,15 @@ interface TableData {
   sheetId?: string;
   columns: Column[];
   customColumns?: Column[];
-  data: Record<string, string | number | boolean>[];
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  data?: Record<string, string | number | boolean>[]; // This matches our DataTableProps
 }
 
-interface TablePageProps {
-  params: {
-    tableId: string;
-  };
-}
-
-const TablePage: React.FC<TablePageProps> = ({ params }) => {
+const TablePage: React.FC = () => {
   const router = useRouter();
-  const { tableId } = params;
+  const { tableId } = useParams<{ tableId: string }>();
 
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [tableInfo, setTableInfo] = useState<TableData | null>(null);
@@ -55,19 +51,17 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
     setIsLoading(true);
     try {
       const response = await fetch(`/api/tables/${tableId}`);
-      console.log("Response:", response);
-
       const data = await response.json();
+
       if (data.error) {
         toast.error(data.message || "Failed to fetch table data");
-        console.error("Failed to fetch table data:", data.message);
+        console.error("Fetch Error:", data.message);
       } else {
-        console.log("Fetched Table Data:", data);
         setTableInfo(data.sheetData);
         setTableData(data.table);
       }
     } catch (error) {
-      console.error("Failed to fetch table data:", error);
+      console.error("Fetch Error:", error);
       toast.error("Failed to fetch table data");
     } finally {
       setIsLoading(false);
@@ -75,8 +69,8 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
   }, [tableId]);
 
   useEffect(() => {
-    fetchTableData();
-  }, [fetchTableData]);
+    if (tableId) fetchTableData();
+  }, [fetchTableData, tableId]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -84,30 +78,30 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
       await fetchTableData();
       toast.success("The latest data has been loaded from Google Sheets");
     } catch (error) {
-      console.error("Failed to refresh table data:", error);
       toast.error("Failed to refresh table data");
+      console.error("Refresh Error:", error);
     } finally {
       setIsRefreshing(false);
     }
   };
 
   const handleDeleteTable = async () => {
-    setIsDeleteDialogOpen(false); // Close dialog before deleting
+    setIsDeleteDialogOpen(false);
     try {
       const response = await fetch(`/api/tables/${tableId}`, {
         method: "DELETE",
       });
-
       const data = await response.json();
+
       if (data.success) {
-        router.push("/"); // Redirect after deletion
+        router.push("/");
         toast.success("Table deleted successfully");
       } else {
         toast.error(data.error || "Failed to delete table");
       }
     } catch (error) {
-      console.error("Error deleting table:", error);
       toast.error("Failed to delete table");
+      console.error("Delete Error:", error);
     }
   };
 
@@ -134,56 +128,52 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
 
   return (
     <DashboardShell>
-      <DashboardHeader
-        heading={tableData?.name || "Table"}
-        text={
-          <div className="flex items-center gap-2">
-            <span>Connected to Google Sheets</span>
-            {tableData?.sheetId && (
-              <Badge
-                variant="outline"
-                className="bg-green-50 text-green-700 border-green-200"
-              >
-                Connected
-              </Badge>
-            )}
-          </div>
-        }
-      >
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw
-              className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            Refresh Data
-          </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={() => setIsDeleteDialogOpen(true)}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete Table
-          </Button>
+      <DashboardHeader heading={tableData?.name || "Table"}>
+        <div className="flex items-center gap-2">
+          <span>Connected to Google Sheets</span>
+          {tableData?.sheetId && (
+            <Badge className="bg-green-50 text-green-700 border-green-200">
+              Connected
+            </Badge>
+          )}
         </div>
       </DashboardHeader>
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+          />{" "}
+          Refresh Data
+        </Button>
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => setIsDeleteDialogOpen(true)}
+        >
+          <Trash2 className="h-4 w-4 mr-2" /> Delete Table
+        </Button>
+      </div>
       <Card className="overflow-x-auto">
         <CardHeader>
           <CardTitle>Table Data</CardTitle>
         </CardHeader>
         <CardContent>
-          {tableInfo && (
-            <DataTable tableInfo={tableInfo} tableData={tableData?.columns} />
+          {tableInfo?.data && (
+            <DataTable
+              tableInfo={tableInfo.data}
+              tableData={(tableData?.columns || []).map((col, index) => ({
+                ...col,
+                _id: col.id || `generated-id-${index}`,
+              }))}
+            />
           )}
         </CardContent>
       </Card>
-
-      {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -193,7 +183,7 @@ const TablePage: React.FC<TablePageProps> = ({ params }) => {
             Are you sure you want to delete this table? This action cannot be
             undone.
           </p>
-          <DialogFooter className="flex justify-end gap-2">
+          <DialogFooter>
             <Button
               variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
