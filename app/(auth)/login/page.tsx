@@ -48,9 +48,10 @@ export default function Login() {
         setError(message || "Failed to log in");
         return;
       }
+      setTimeout(() => {
+        window.location.href = "/"
+      }, 300)
 
-      router.push("/");
-      router.refresh();
       toast("Logged in sucessfully.");
     } catch (error) {
       console.error(error);
