@@ -58,7 +58,7 @@ export default function SignupPage() {
 
       console.log(res);
 
-      router.push("/");
+      router.push("/login");
       toast("Signed up sucessfully");
     } catch (error) {
       console.log(error);
