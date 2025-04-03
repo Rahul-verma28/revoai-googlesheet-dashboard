@@ -48,7 +48,8 @@ export default function Login() {
         setError(message || "Failed to log in");
         return;
       }
-
+      
+      router.refresh();
       router.push("/");
       toast("Logged in sucessfully.");
     } catch (error) {
